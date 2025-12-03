@@ -1,0 +1,311 @@
+@import './global.css';
+/* 🌸 Estilo general del carrito D’Rossy */
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(to bottom right, #ffe4ec, #fff5f7);
+  color: #4a4a4a;
+}
+
+/* 🧁 Encabezado principal */
+h1 {
+  font-family: "Pacifico", cursive;
+  letter-spacing: 1px;
+  color: #e11d48;
+  text-shadow: 1px 2px 3px rgba(255, 192, 203, 0.5);
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* ✨ Animación suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🧸 Tarjetas de productos */
+.product-card {
+  background: #fff0f4;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 10px rgba(255, 192, 203, 0.4);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  border-color: #f9a8d4;
+  box-shadow: 0 8px 15px rgba(249, 168, 212, 0.6);
+}
+
+.product-card img {
+  border-radius: 0.8rem;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+.product-card h3 {
+  color: #be123c;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.product-card p {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+}
+
+.price {
+  font-weight: bold;
+  color: #ec4899;
+}
+
+/* 🍓 Botones */
+.add-btn {
+  background: linear-gradient(to right, #ec4899, #f472b6);
+  color: white;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(236, 72, 153, 0.4);
+}
+
+.add-btn:hover {
+  background: linear-gradient(to right, #f472b6, #ec4899);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(236, 72, 153, 0.6);
+}
+
+/* 🛍️ Caja del carrito */
+#cart-list li {
+  transition: all 0.25s ease-in-out;
+}
+
+#cart-list li:hover {
+  background-color: #ffeaf3;
+  transform: scale(1.02);
+}
+
+/* 🧾 Botones de cantidad y eliminar */
+button[data-action] {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button[data-action]:hover {
+  transform: scale(1.1);
+}
+
+/* 💳 Botón "Ir a pagar" */
+#checkout-btn {
+  background: linear-gradient(to right, #f43f5e, #ec4899);
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 5px 10px rgba(244, 63, 94, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+#checkout-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+/* 🪄 Botón "Vaciar carrito" */
+#clear-cart {
+  transition: all 0.3s ease;
+}
+
+#clear-cart:hover {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+/* 🌷 Carrito contenedor */
+.sticky {
+  animation: fadeIn 1.2s ease;
+  border: 2px solid #ffe4ec;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .product-card img {
+    height: 160px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+/* 🌸 Estilo general del carrito D’Rossy */
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(to bottom right, #ffe4ec, #fff5f7);
+  color: #4a4a4a;
+}
+
+/* 🧁 Encabezado principal */
+h1 {
+  font-family: "Pacifico", cursive;
+  letter-spacing: 1px;
+  color: #e11d48;
+  text-shadow: 1px 2px 3px rgba(255, 192, 203, 0.5);
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* ✨ Animación suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🧸 Tarjetas de productos */
+.product-card {
+  background: #fff0f4;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 10px rgba(255, 192, 203, 0.4);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  border-color: #f9a8d4;
+  box-shadow: 0 8px 15px rgba(249, 168, 212, 0.6);
+}
+
+.product-card img {
+  border-radius: 0.8rem;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+.product-card h3 {
+  color: #be123c;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.product-card p {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+}
+
+.price {
+  font-weight: bold;
+  color: #ec4899;
+}
+
+/* 🍓 Botones */
+.add-btn {
+  background: linear-gradient(to right, #ec4899, #f472b6);
+  color: white;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(236, 72, 153, 0.4);
+}
+
+.add-btn:hover {
+  background: linear-gradient(to right, #f472b6, #ec4899);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(236, 72, 153, 0.6);
+}
+
+/* 🛍️ Caja del carrito */
+#cart-list li {
+  transition: all 0.25s ease-in-out;
+}
+
+#cart-list li:hover {
+  background-color: #ffeaf3;
+  transform: scale(1.02);
+}
+
+/* 🧾 Botones de cantidad y eliminar */
+button[data-action] {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button[data-action]:hover {
+  transform: scale(1.1);
+}
+
+/* 💳 Botón "Ir a pagar" */
+#checkout-btn {
+  background: linear-gradient(to right, #f43f5e, #ec4899);
+  font-family: "Poppins", sans-serif;
+  box-shadow: 0 5px 10px rgba(244, 63, 94, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+#checkout-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+/* 🪄 Botón "Vaciar carrito" */
+#clear-cart {
+  transition: all 0.3s ease;
+}
+
+#clear-cart:hover {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+/* 🌷 Carrito contenedor */
+.sticky {
+  animation: fadeIn 1.2s ease;
+  border: 2px solid #ffe4ec;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .product-card img {
+    height: 160px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}

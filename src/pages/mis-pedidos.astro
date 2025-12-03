@@ -1,0 +1,83 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { supabase } from "../lib/supabase.js";
+
+// 🔐 Obtener sesión del usuario
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (!session) {
+  // Si no está logueado → redirigir al login
+  throw Astro.redirect("/auth/login");
+}
+
+const user_id = session.user.id;
+
+// 🟦 Obtener pedidos del usuario
+const { data: orders, error } = await supabase
+  .from("orders")
+  .select(`
+    id,
+    total,
+    created_at,
+    order_items (
+      id,
+      quantity,
+      price,
+      productos (
+        nombre,
+        imagen
+      )
+    )
+  `)
+  .eq("user_id", user_id)
+  .order("created_at", { ascending: false });
+
+---
+<BaseLayout title="Mis pedidos">
+  <h1 class="text-3xl font-bold mb-6">Mis pedidos</h1>
+
+  {error && (
+    <p class="text-red-600">Error cargando pedidos: {error.message}</p>
+  )}
+
+  {orders?.length === 0 && (
+    <p class="text-gray-600">Todavía no tienes pedidos.</p>
+  )}
+
+  <div class="space-y-6">
+    {orders?.map(order => (
+      <div class="p-6 rounded-xl bg-white shadow">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold">Pedido #{order.id}</h2>
+          <span class="text-gray-500 text-sm">
+            {new Date(order.created_at).toLocaleDateString("es-PE")}
+          </span>
+        </div>
+
+        <div class="mt-4 space-y-3">
+          {order.order_items.map(item => (
+            <div class="flex items-center gap-3">
+              <img
+                src={item.productos?.imagen}
+                alt={item.productos?.nombre}
+                class="w-14 h-14 object-cover rounded-lg"
+              />
+              <div>
+                <p class="font-semibold">{item.productos?.nombre}</p>
+                <p class="text-sm text-gray-600">
+                  {item.quantity} × S/ {item.price.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p class="mt-4 text-right font-bold text-lg">
+          Total: S/ {order.total.toFixed(2)}
+        </p>
+      </div>
+    ))}
+  </div>
+</BaseLayout>

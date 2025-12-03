@@ -1,0 +1,76 @@
+---
+import { supabase } from '../../lib/supabase.js';
+
+const url = new URL(Astro.request.url);
+const id = url.searchParams.get("id");
+let message = "";
+let product = null;
+
+// Si POST -> actualizar
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const name = form.get("name");
+  const price = form.get("price");
+  const description = form.get("description");
+  const image = form.get("image");
+
+  const { error } = await supabase
+    .from("productos")
+    .update({ name, price: Number(price), description, image })
+    .eq("id", id);
+
+  message = error ? `Error: ${error.message}` : "Producto actualizado!";
+}
+
+// Traer producto actual
+const { data, error } = await supabase
+  .from("productos")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+product = data;
+---
+<html>
+  <body style="font-family: sans-serif; padding: 24px;">
+
+    <!-- Si hubo error cargando el producto -->
+    {error && (
+      <p style="color:red;">Error cargando producto: {error.message}</p>
+    )}
+
+    <!-- Si aún no hay producto, mostrar loading -->
+    {!product && !error && (
+      <p>Cargando producto...</p>
+    )}
+
+    <!-- Si el producto se cargó, mostrar el formulario -->
+    {product && (
+      <>
+        <h1>Editar producto {product.name}</h1>
+
+        <p style="color:green;">{message}</p>
+
+        <form method="POST">
+          <label>Nombre</label><br />
+          <input name="name" value={product.name} /><br /><br />
+
+          <label>Precio</label><br />
+          <input name="price" type="number" value={product.price} /><br /><br />
+
+          <label>Descripción</label><br />
+          <textarea name="description">{product.description}</textarea><br /><br />
+
+          <label>Imagen (URL)</label><br />
+          <input name="image" value={product.image} /><br /><br />
+
+          <button type="submit">Guardar</button>
+        </form>
+
+        <br />
+        <a href="/admin">Volver</a>
+      </>
+    )}
+
+  </body>
+</html>

@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Nosotros - Repostería D'Rossy">
+  <link rel="stylesheet" href="/src/styles/nosotros.css" />
+
+  <h1 class="text-3xl font-bold mb-6 text-center">Nosotros</h1>
+
+  <div class="bg-white rounded-2xl shadow p-6 md:p-10 space-y-16">
+    <!-- Sección 1: texto + imagen panaderos -->
+    <div class="flex flex-col md:flex-row items-center gap-10">
+      <div class="flex-1">
+        <p class="text-gray-700 leading-relaxed text-lg">
+          Somos un equipo apasionado por la pastelería artesanal. Cada pedido se prepara con ingredientes frescos, amor y dedicación,
+          buscando siempre sorprender a nuestros clientes con la mejor calidad y sabor.
+        </p>
+
+        <h2 class="mt-6 font-semibold text-xl">Nuestro equipo</h2>
+        <div class="team mt-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="font-bold">Rossy</div>
+            <div class="text-sm text-gray-500">Fundadora y pastelera principal</div>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="font-bold">Equipo</div>
+            <div class="text-sm text-gray-500">Atención al cliente y producción</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen del equipo de panaderos -->
+      <div class="flex-1 flex justify-center">
+        <img
+          src="/img/panaderosX2.png"
+          alt="Equipo de panaderos"
+          class="rounded-2xl shadow-lg w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
+        />
+      </div>
+    </div>
+
+    <!-- Sección 2: delivery -->
+    <div class="flex flex-col md:flex-row-reverse items-center gap-10">
+      <div class="flex-1">
+        <p class="text-gray-700 leading-relaxed text-lg">
+          Además, contamos con un equipo de entrega comprometido para que tus pedidos lleguen frescos y a tiempo,
+          listos para alegrar tus celebraciones.
+        </p>
+
+        <h2 class="mt-6 font-semibold text-xl">Reparto y logística</h2>
+        <p class="mt-2 text-gray-600">
+          Nuestro servicio de delivery garantiza que cada pastel llegue con la misma calidad con la que sale del horno.
+        </p>
+      </div>
+
+      <!-- Imagen del equipo de delivery -->
+      <div class="flex-1 flex justify-center">
+        <img
+          src="/img/deliveryyy.png"
+          alt="Equipo de delivery"
+          class="rounded-2xl shadow-lg w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

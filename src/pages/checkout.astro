@@ -1,0 +1,10 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CheckoutClient from "../components/cart/CheckoutClient.jsx";
+---
+
+<BaseLayout title="Checkout">
+  <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+
+  <CheckoutClient client:load />
+</BaseLayout>

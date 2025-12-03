@@ -1,0 +1,148 @@
+@import './global.css';
+/* 💕 Estilo general */
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(to bottom right, #fff1f2, #fef9c3);
+  color: #4b5563;
+  margin: 0;
+  padding-bottom: 3rem;
+}
+
+/* ✨ Título principal */
+h1 {
+  font-family: "Pacifico", cursive;
+  color: #e11d48;
+  text-shadow: 1px 2px 3px rgba(255, 182, 193, 0.5);
+  animation: fadeDown 1s ease-in-out;
+}
+
+/* 🍰 Animación de entrada */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🧁 Contenedor principal */
+.bg-white {
+  background: #fffafc;
+  box-shadow: 0 8px 18px rgba(249, 168, 212, 0.4);
+  border-radius: 1.5rem;
+  border: 2px solid #fbcfe8;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Animación suave de aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🌷 Secciones de texto */
+p {
+  line-height: 1.7;
+  color: #4b5563;
+}
+
+.text-gray-600 {
+  color: #6b7280;
+}
+
+/* 🌼 Subtítulos */
+h2 {
+  font-family: "Pacifico", cursive;
+  color: #ec4899;
+  margin-top: 1rem;
+  text-shadow: 1px 2px 3px rgba(236, 72, 153, 0.3);
+}
+
+/* 👩‍🍳 Tarjetas del equipo */
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.team .p-4 {
+  background: #fff0f5;
+  box-shadow: 0 4px 10px rgba(249, 168, 212, 0.3);
+  border: 1px solid #fbcfe8;
+  transition: all 0.3s ease;
+}
+
+.team .p-4:hover {
+  transform: scale(1.03);
+  background-color: #ffe4e6;
+}
+
+/* 👩‍🍰 Nombres y roles */
+.team .font-bold {
+  color: #be123c;
+  font-weight: 600;
+}
+
+.team .text-sm {
+  color: #6b7280;
+}
+
+/* 📸 Imágenes */
+img {
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 20px rgba(249, 168, 212, 0.4);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(249, 168, 212, 0.5);
+}
+
+/* 💨 Animaciones de secciones */
+.flex {
+  animation: slideUp 1s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  .bg-white {
+    padding: 1.5rem;
+  }
+
+  img {
+    max-width: 90%;
+  }
+}

@@ -1,0 +1,206 @@
+---
+import { createClient } from '@supabase/supabase-js';
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// ======================================
+// 1) AUTENTICACIÓN
+// ======================================
+const { data: { user } } = await supabase.auth.getUser();
+let message = "";
+
+// ======================================
+// 2) PROCESAR FORMULARIOS (POST)
+// ======================================
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const action = form.get("_action");
+
+  // Crear producto
+  if (action === "create") {
+    const name = form.get("name");
+    const price = form.get("price");
+    const description = form.get("description");
+    const image = form.get("image");
+
+    const { error } = await supabase.from("productos").insert([
+      { name, price: Number(price || 0), description, image }
+    ]);
+
+    message = error ? `Error: ${error.message}` : "Producto agregado correctamente!";
+  }
+
+  // Eliminar producto
+  if (action === "delete") {
+    const id = form.get("id");
+
+    const { error } = await supabase.from("productos").delete().eq("id", id);
+
+    message = error ? `Error eliminando: ${error.message}` : "Producto eliminado!";
+  }
+
+  // Cambiar estado del pedido
+  if (action === "cambiar_estado") {
+    const pedidoId = form.get('pedido_id');
+    const nuevoEstado = form.get('estado');
+
+    await supabase.from('pedidos').update({ estado: nuevoEstado }).eq('id', pedidoId);
+
+    return Astro.redirect('/admin');
+  }
+}
+
+// ======================================
+// 3) CARGAR PRODUCTOS
+// ======================================
+const { data: products } = await supabase.from("productos").select("*");
+
+// ======================================
+// 4) CARGAR PEDIDOS
+// ======================================
+let pedidos = [];
+if (user) {
+  const { data } = await supabase
+    .from('pedidos')
+    .select(`
+      *,
+      usuarios:user_id ( email )
+    `)
+    .order('fecha_creacion', { ascending: false });
+
+  pedidos = data || [];
+}
+
+// ======================================
+// 5) PROCESAR PRODUCTOS DE LOS PEDIDOS
+// ======================================
+pedidos = pedidos.map(p => ({
+  ...p,
+  listaProductos: (() => {
+    try {
+      const arr = JSON.parse(p.productos);
+      return arr.map(x => `${x.nombre} (x${x.cantidad})`).join(", ");
+    } catch {
+      return "—";
+    }
+  })()
+}));
+---
+
+<BaseLayout title="Panel de Administración">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Panel de Administración</h1>
+
+    {!user ? (
+      <div class="text-center">
+        <p>Debes iniciar sesión para acceder al panel</p>
+        <a href="/login" class="btn-primary mt-4">Iniciar Sesión</a>
+      </div>
+    ) : (
+      <>
+        <!-- ================================= -->
+        <!--         GESTIÓN DE PRODUCTOS      -->
+        <!-- ================================= -->
+        <h2 class="text-2xl font-bold mb-4">Gestión de Productos</h2>
+
+        {message && <p style="color: green;">{message}</p>}
+
+        <form method="POST" class="bg-white p-6 rounded shadow-md mb-8">
+          <input type="hidden" name="_action" value="create" />
+
+          <label>Nombre</label>
+          <input name="name" required class="input mb-3" />
+
+          <label>Precio</label>
+          <input name="price" type="number" class="input mb-3" />
+
+          <label>Descripción</label>
+          <textarea name="description" class="input mb-3"></textarea>
+
+          <label>Imagen (URL)</label>
+          <input name="image" class="input mb-3" />
+
+          <button class="btn-primary mt-3">Crear Producto</button>
+        </form>
+
+        <h3 class="text-xl font-semibold mb-3">Productos existentes</h3>
+
+        {products?.length === 0 ? (
+          <p>No hay productos todavía.</p>
+        ) : (
+          <ul>
+            {products.map(p => (
+              <li style="margin-bottom: 12px;">
+                <strong>{p.name}</strong> — S/ {p.price}<br />
+                <small>{p.description}</small><br />
+                {p.image && <img src={p.image} style="width:120px;" />}
+
+                <form method="POST" style="display:inline;">
+                  <input type="hidden" name="_action" value="delete" />
+                  <input type="hidden" name="id" value={p.id} />
+                  <button type="submit" style="color:red;">Eliminar</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <hr class="my-10" />
+
+        <!-- ================================= -->
+        <!--              PEDIDOS              -->
+        <!-- ================================= -->
+        <h2 class="text-2xl font-bold mb-4">Pedidos</h2>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="table-th">Pedido ID</th>
+                  <th class="table-th">Cliente</th>
+                  <th class="table-th">Productos</th>
+                  <th class="table-th">Total</th>
+                  <th class="table-th">Estado</th>
+                  <th class="table-th">Fecha</th>
+                  <th class="table-th">Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white divide-y divide-gray-200">
+                {pedidos.map(pedido => (
+                  <tr key={pedido.id}>
+                    <td class="table-td">#{pedido.id}</td>
+                    <td class="table-td">{pedido.usuarios?.email || 'N/A'}</td>
+                    <td class="table-td">{pedido.listaProductos}</td>
+                    <td class="table-td">S/ {pedido.total}</td>
+                    <td class="table-td">{pedido.estado}</td>
+                    <td class="table-td">{pedido.fecha_creacion}</td>
+
+                    <td class="table-td">
+                      <form method="POST">
+                        <input type="hidden" name="_action" value="cambiar_estado" />
+                        <input type="hidden" name="pedido_id" value={pedido.id} />
+
+                        <select name="estado" class="input">
+                          <option value="pendiente" selected={pedido.estado === "pendiente"}>Pendiente</option>
+                          <option value="completado" selected={pedido.estado === "completado"}>Completado</option>
+                        </select>
+
+                        <button class="btn-primary ml-2">Actualizar</button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </>
+    )}
+  </div>
+</BaseLayout>

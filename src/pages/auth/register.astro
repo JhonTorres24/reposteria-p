@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Crear Cuenta">
+  <section class="min-h-screen flex items-center justify-center bg-rose-50">
+    <div class="bg-white p-8 rounded-2xl shadow max-w-md w-full">
+      <h1 class="text-2xl font-bold mb-6 text-rose-600 text-center">Crear Cuenta</h1>
+
+      <form id="register-form" class="space-y-4">
+        <input type="email" id="email" placeholder="Correo" class="w-full p-3 border rounded-lg" required />
+        <input type="password" id="password" placeholder="Contraseña" class="w-full p-3 border rounded-lg" required />
+        <button class="w-full bg-rose-500 text-white py-3 rounded-lg">Registrarse</button>
+      </form>
+
+      <p class="mt-4 text-sm text-center">
+        ¿Ya tienes cuenta?
+        <a href="/auth/login" class="text-rose-600 underline">Iniciar sesión</a>
+      </p>
+    </div>
+  </section>
+
+  <script type="module">
+    import { supabase } from "../../lib/supabase.js";
+
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        alert("Error: " + error.message);
+        return;
+      }
+
+      alert("Cuenta creada! Revisa tu correo para confirmar.");
+      window.location.href = "/auth/login";
+    });
+  </script>
+</BaseLayout>

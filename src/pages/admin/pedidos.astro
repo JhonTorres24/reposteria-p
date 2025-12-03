@@ -1,0 +1,131 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { supabase } from "../../lib/supabase.js";
+
+// ░░ Validar sesión ░░
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect("/auth/login");
+}
+
+// ⚠️ Correo de la dueña
+const OWNER_EMAIL = "rossy@gmail.com";
+
+if (session.user.email !== OWNER_EMAIL) {
+  return new Response(
+    await Astro.render(BaseLayout, {
+      title: "Acceso denegado",
+      children: `
+        <h1 class="text-red-600 text-2xl font-bold">Acceso denegado</h1>
+        <p>No tienes permisos para ver esta sección.</p>
+      `,
+    }),
+    { status: 403 }
+  );
+}
+
+// ░░ Obtener pedidos con detalle completo ░░
+const { data: orders, error } = await supabase
+  .from("orders")
+  .select(`
+    id,
+    total,
+    status,
+    created_at,
+    users: user_id ( email ),
+    order_items (
+      id,
+      quantity,
+      price,
+      productos (
+        nombre,
+        imagen
+      )
+    )
+  `)
+  .order("created_at", { ascending: false });
+---
+
+<BaseLayout title="Panel de pedidos">
+  <h1 class="text-3xl font-bold mb-6">Pedidos de clientes</h1>
+
+  {error && <p class="text-red-500">Error: {error.message}</p>}
+
+  <div class="space-y-6">
+    {orders?.map(order => (
+      <div class="p-6 bg-white rounded-xl shadow">
+
+        <div class="flex justify-between">
+          <h2 class="font-bold text-xl">Pedido #{order.id}</h2>
+          <p class="text-sm text-gray-500">
+            {new Date(order.created_at).toLocaleString("es-PE")}
+          </p>
+        </div>
+
+        <p class="text-gray-600 mt-1">
+          Cliente: <span class="font-semibold">{order.users?.email}</span>
+        </p>
+
+        <div class="mt-4 space-y-3">
+          {order.order_items.map(item => (
+            <div class="flex items-center gap-3">
+              <img
+                src={item.productos.imagen}
+                class="w-14 h-14 rounded-lg object-cover"
+                alt="Imagen del producto"
+              />
+
+              <div>
+                <p class="font-semibold">{item.productos.nombre}</p>
+                <p class="text-sm text-gray-600">
+                  {item.quantity} × S/ {item.price.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p class="mt-4 text-right font-bold text-lg">
+          Total: S/ {order.total.toFixed(2)}
+        </p>
+
+        <!-- Estado -->
+        <form method="POST" action="/api/update-order-status" class="mt-4">
+          <input type="hidden" name="order_id" value={order.id} />
+
+          <select name="status" class="px-3 py-2 border rounded-lg">
+            <option value="pendiente" selected={order.status === "pendiente"}>
+              Pendiente
+            </option>
+            <option value="confirmado" selected={order.status === "confirmado"}>
+              Confirmado
+            </option>
+            <option value="entregado" selected={order.status === "entregado"}>
+              Entregado
+            </option>
+          </select>
+
+          <button
+            class="ml-3 px-3 py-2 bg-green-600 text-white rounded-lg"
+            type="submit"
+          >
+            Guardar
+          </button>
+        </form>
+
+        <!-- WhatsApp -->
+        <a
+          href={`https://wa.me/51?text=Hola! tu pedido #${order.id} está listo 😀🍰`}
+          target="_blank"
+          class="mt-3 inline-block text-white bg-blue-500 px-3 py-2 rounded-lg"
+        >
+          Enviar WhatsApp
+        </a>
+
+      </div>
+    ))}
+  </div>
+</BaseLayout>

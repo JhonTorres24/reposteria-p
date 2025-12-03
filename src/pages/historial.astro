@@ -1,0 +1,98 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+);
+
+// Obtener sesión del usuario
+const { data: sessionData } = await supabase.auth.getSession();
+const session = sessionData?.session;
+const user = session?.user;
+
+let orders = [];
+
+if (user) {
+  // Traer pedidos + items
+  const { data, error } = await supabase
+    .from("orders")
+    .select(`
+      id,
+      total,
+      created_at,
+      order_items (
+        product_id,
+        quantity,
+        price
+      )
+    `)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  orders = data || [];
+}
+---
+
+<BaseLayout title="Historial de Pedidos">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Mis Pedidos</h1>
+
+    <!-- SIN LOGIN -->
+    {!user && (
+      <div class="text-center">
+        <p class="text-lg mb-4">Debes iniciar sesión para ver tus pedidos</p>
+        <a href="/auth/login" class="btn-primary">Iniciar Sesión</a>
+      </div>
+    )}
+
+    <!-- SIN PEDIDOS -->
+    {user && orders.length === 0 && (
+      <div class="text-center">
+        <p class="text-lg">Aún no tienes pedidos</p>
+        <a href="/catalogo" class="btn-primary mt-4">Ir al Catálogo</a>
+      </div>
+    )}
+
+    <!-- LISTADO -->
+    {user && orders.length > 0 && (
+      <div class="space-y-6">
+        {orders.map(order => (
+          <div class="bg-white rounded-lg shadow-md p-6 border">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-xl font-semibold">Pedido #{order.id}</h3>
+                <p class="text-gray-600">
+                  {new Date(order.created_at).toLocaleDateString("es-ES")}
+                </p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                pendiente
+              </span>
+            </div>
+
+            <!-- ITEMS -->
+            <div class="mb-4">
+              <h4 class="font-semibold mb-2">Productos:</h4>
+
+              <div class="space-y-2">
+                {order.order_items.map(item => (
+                  <div class="flex justify-between">
+                    <span>Producto #{item.product_id} × {item.quantity}</span>
+                    <span>S/ {item.price * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center border-t pt-4">
+              <span class="font-semibold">Total:</span>
+              <span class="text-xl font-bold">S/ {order.total}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>
