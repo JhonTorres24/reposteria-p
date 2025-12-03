@@ -1,4 +1,5 @@
-import { supabaseAdmin } from "../../../lib/supabaseAdmin.js";
+// src/pages/api/update-order-status.js
+import { supabaseAdmin } from "../../lib/supabaseAdmin.js"; // ✅ Ruta corregida: 2 niveles arriba
 
 export async function POST({ request }) {
   try {
