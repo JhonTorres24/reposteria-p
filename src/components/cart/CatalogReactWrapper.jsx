@@ -17,6 +17,7 @@ export default function CatalogReactWrapper({ products }) {
   function handleAddToCart(product) {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const exists = cart.find((i) => i.id === product.id);
+
     if (exists) {
       exists.qty += 1;
     } else {
@@ -25,9 +26,10 @@ export default function CatalogReactWrapper({ products }) {
         name: product.nombre,
         price: product.precio,
         qty: 1,
-        img: product.imagen_url || "/assets/placeholder.png",
+        img: product.imagen || "/assets/placeholder.png", // <-- AQUÍ CORREGIDO
       });
     }
+
     localStorage.setItem("cart", JSON.stringify(cart));
     showToast(`${product.nombre} agregado al carrito 🛒`);
   }
@@ -40,13 +42,15 @@ export default function CatalogReactWrapper({ products }) {
           className="product-card bg-white rounded-2xl shadow p-4 flex flex-col justify-between animate-fadeInUp"
         >
           <img
-            src={p.imagen_url || "/assets/placeholder.png"}
+            src={p.imagen || "/assets/placeholder.png"} // <-- AQUÍ CORREGIDO
             alt={p.nombre}
             className="w-full h-40 object-cover rounded-xl mb-4"
           />
+
           <h3 className="text-xl font-semibold mb-2">{p.nombre}</h3>
           <p className="text-gray-600 mb-2">{p.descripcion}</p>
           <strong className="text-orange-600 mb-4">S/ {p.precio}</strong>
+
           <button
             onClick={() => handleAddToCart(p)}
             className="add-to-cart-btn bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition-colors"
