@@ -79,7 +79,12 @@ import { enviarWhatsApp } from "../utils/whatsapp.js";
 
         li.innerHTML = `
           <div class="flex items-center gap-4">
-            <img src="${item.img}" class="w-16 h-16 rounded-xl object-cover shadow" />
+            <img 
+              src="${item.img || '/assets/placeholder.png'}"
+              alt="${item.name}"
+              class="w-16 h-16 rounded-xl object-cover border border-orange-200 shadow-sm bg-white"
+              onerror="this.src='/assets/placeholder.png';"
+            />
             <div class="leading-tight">
               <p class="font-bold text-gray-800 text-lg">${item.name}</p>
               <p class="text-sm text-gray-500">$${item.price} x ${item.qty}</p>
