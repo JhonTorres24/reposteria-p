@@ -3,26 +3,52 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Nosotros - Repostería D'Rossy">
   <link rel="stylesheet" href="/src/styles/nosotros.css" />
+  
+  <!-- Header flotante -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/40 dark:bg-black/40 shadow-lg border-b border-white/50 dark:border-white/10"
+  >
+    <div
+      class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6 text-orange-700 font-bold"
+    >
+      <a href="/" class="text-3xl logo-glow">🎂 D'Rossy</a>
 
-  <h1 class="text-3xl font-bold mb-6 text-center">Nosotros</h1>
+      <nav class="hidden md:flex gap-6 font-semibold">
+        <a href="/" class="hover:text-orange-500">Inicio</a>
+        <a href="/catalogo" class="hover:text-orange-500">Catálogo</a>
+        <a href="/nosotros" class="hover:text-orange-500">Nosotros</a>
+        <a href="/login" class="hover:text-orange-500">Login</a>
+        <a href="/carrito" class="hover:text-orange-500 text-2xl">🛒</a>
+      </nav>
 
-  <div class="bg-white rounded-2xl shadow p-6 md:p-10 space-y-16">
+      <!-- Selector de tema -->
+      <select
+        id="modeSelect"
+        class="bg-white/50 border px-2 py-1 rounded dark:bg-black/50"
+        title="Cambiar tema"
+      >
+        <option value="normal">Normal</option>
+        <option value="navidad">Navidad</option>
+        <option value="valentin">San Valentín</option>
+        <option value="primavera">Primavera</option>
+      </select>
+    </div>
+  </header>
     <!-- Sección 1: texto + imagen panaderos -->
-    <div class="flex flex-col md:flex-row items-center gap-10">
+    <div class="flex flex-col md:flex-row items-center gap-12">
       <div class="flex-1">
-        <p class="text-gray-700 leading-relaxed text-lg">
-          Somos un equipo apasionado por la pastelería artesanal. Cada pedido se prepara con ingredientes frescos, amor y dedicación,
-          buscando siempre sorprender a nuestros clientes con la mejor calidad y sabor.
+        <p class="text-gray-700 leading-relaxed text-lg md:text-xl font-light mb-4">
+          En Repostería D'Rossy, somos un equipo apasionado por la pastelería artesanal. Cada pedido se prepara con ingredientes frescos, amor y dedicación, buscando siempre sorprender a nuestros clientes con la mejor calidad y sabor.
         </p>
 
-        <h2 class="mt-6 font-semibold text-xl">Nuestro equipo</h2>
-        <div class="team mt-4">
-          <div class="p-4 bg-gray-50 rounded-lg">
-            <div class="font-bold">Rossy</div>
+        <h2 class="mt-6 font-semibold text-xl text-pink-600">Nuestro equipo</h2>
+        <div class="team mt-4 space-y-4">
+          <div class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="font-bold text-lg text-pink-600">Rossy</div>
             <div class="text-sm text-gray-500">Fundadora y pastelera principal</div>
           </div>
-          <div class="p-4 bg-gray-50 rounded-lg">
-            <div class="font-bold">Equipo</div>
+          <div class="p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="font-bold text-lg text-pink-600">Equipo</div>
             <div class="text-sm text-gray-500">Atención al cliente y producción</div>
           </div>
         </div>
@@ -33,22 +59,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <img
           src="/img/panaderosX2.png"
           alt="Equipo de panaderos"
-          class="rounded-2xl shadow-lg w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
+          class="rounded-2xl shadow-2xl w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
         />
       </div>
     </div>
 
     <!-- Sección 2: delivery -->
-    <div class="flex flex-col md:flex-row-reverse items-center gap-10">
+    <div class="flex flex-col md:flex-row-reverse items-center gap-12">
       <div class="flex-1">
-        <p class="text-gray-700 leading-relaxed text-lg">
-          Además, contamos con un equipo de entrega comprometido para que tus pedidos lleguen frescos y a tiempo,
-          listos para alegrar tus celebraciones.
+        <p class="text-gray-700 leading-relaxed text-lg md:text-xl font-light mb-4">
+          Además, contamos con un equipo de entrega comprometido para que tus pedidos lleguen frescos y a tiempo, listos para alegrar tus celebraciones.
         </p>
 
-        <h2 class="mt-6 font-semibold text-xl">Reparto y logística</h2>
+        <h2 class="mt-6 font-semibold text-xl text-pink-600">Reparto y logística</h2>
         <p class="mt-2 text-gray-600">
-          Nuestro servicio de delivery garantiza que cada pastel llegue con la misma calidad con la que sale del horno.
+          Nuestro servicio de delivery garantiza que cada pastel llegue con la misma calidad con la que sale del horno, para que tu experiencia sea tan dulce como nuestros productos.
         </p>
       </div>
 
@@ -57,7 +82,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <img
           src="/img/deliveryyy.png"
           alt="Equipo de delivery"
-          class="rounded-2xl shadow-lg w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
+          class="rounded-2xl shadow-2xl w-full max-w-md object-cover hover:scale-105 transition-transform duration-500"
         />
       </div>
     </div>
