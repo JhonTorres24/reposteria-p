@@ -1,46 +1,37 @@
 ---
-import CartWrapper from "../components/cart/CartWrapper.jsx";
-const { title = 'Repostería Rossy' } = Astro.props;
+// src/layouts/BaseLayout.astro
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
 ---
 
-<!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
-    <link rel="stylesheet" href="/src/styles/global.css" />
+    <title>{Astro.props.title || "Repostería D'Rossy"}</title>
+
+    <link rel="stylesheet" href="/styles/global.css" />
   </head>
 
-  <body class="min-h-screen flex flex-col">
-    <CartWrapper client:load>
-      <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold">R</div>
-            <div>
-              <div class="font-bold">Repostería D'Rossy</div>
-              <div class="text-sm text-gray-500">Dulces y pasteles artesanales</div>
-            </div>
-          </a>
-          <nav class="flex items-center gap-4">
-            <a class="text-sm hover:underline" href="/">Inicio</a>
-            <a class="text-sm hover:underline" href="/catalogo">Catálogo</a>
-            <a class="text-sm hover:underline" href="/nosotros">Nosotros</a>
-            <a class="text-sm hover:underline" href="/carrito">Carrito</a>
-          </nav>
-        </div>
-      </header>
+  <body class="min-h-screen flex flex-col bg-yellow-50">
 
-      <main class="flex-1 container mx-auto px-4 py-8">
-        <slot />
-      </main>
-    </CartWrapper>
+    <!-- ⭐ NAVBAR con icono de carrito agregado ⭐ -->
+    <nav class="bg-white shadow py-4 px-6 flex items-center justify-between">
+      <a href="/" class="text-2xl font-bold text-orange-600">D'Rossy</a>
 
-    <footer class="bg-white border-t">
-      <div class="container mx-auto px-4 py-6 text-sm text-gray-600">
-        © {new Date().getFullYear()} Repostería D'Rossy — Hecho con amor.
+      <div class="flex items-center gap-6">
+        <a href="/catalogo" class="hover:text-orange-500">Catálogo</a>
+        <a href="/nosotros" class="hover:text-orange-500">Nosotros</a>
+
+        <!-- 🛒 ICONO DE CARRITO (lo que querías pegar) -->
+        <a href="/carrito" class="hover:text-orange-500 text-2xl">🛒</a>
       </div>
-    </footer>
+    </nav>
+
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <Footer />
   </body>
 </html>
