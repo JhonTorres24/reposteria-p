@@ -1,8 +1,18 @@
-// src/lib/supabaseAdmin.js
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js'
 
-// Variables de entorno PRIVADAS (solo disponibles en el servidor)
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 
-export const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Para operaciones que requieren admin (como crear pedidos)
+export const supabaseAdmin = createClient(
+  supabaseUrl, 
+  import.meta.env.SUPABASE_SERVICE_ROLE_KEY, // Clave secreta del servicio
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+)
