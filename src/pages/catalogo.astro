@@ -14,12 +14,46 @@ const { data: products, error } = await supabase
 console.log("📦 Productos recibidos:", products);
 console.log("❌ Error:", error);
 ---
+
 <Layout title="Catálogo - Repostería D'Rossy">
-  <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-50 p-6">
+
+  <!-- Header flotante -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/40 dark:bg-black/40 shadow-lg border-b border-white/50 dark:border-white/10"
+  >
+    <div
+      class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6 text-orange-700 font-bold"
+    >
+      <a href="/" class="text-3xl logo-glow">🎂 D'Rossy</a>
+
+      <nav class="hidden md:flex gap-6 font-semibold">
+        <a href="/" class="hover:text-orange-500">Inicio</a>
+        <a href="/catalogo" class="hover:text-orange-500">Catálogo</a>
+        <a href="/nosotros" class="hover:text-orange-500">Nosotros</a>
+        <a href="/login" class="hover:text-orange-500">Login</a>
+        <a href="/carrito" class="hover:text-orange-500 text-2xl">🛒</a>
+      </nav>
+
+      <select
+        id="modeSelect"
+        class="bg-white/50 border px-2 py-1 rounded dark:bg-black/50"
+        title="Cambiar tema"
+      >
+        <option value="normal">Normal</option>
+        <option value="navidad">Navidad</option>
+        <option value="valentin">San Valentín</option>
+        <option value="primavera">Primavera</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-50 p-6 pt-32">
     <h1 class="text-4xl font-bold mb-8 text-center text-orange-600 drop-shadow-lg">
       🌟 Catálogo de Productos 🌟
     </h1>
 
+    <!-- 🚫 SIN JSX / 100% ASTRO -->
     {error && <p class="text-red-500 text-center mb-4">Error cargando productos: {error.message}</p>}
 
     <CatalogReactWrapper products={products} client:load />
@@ -55,12 +89,12 @@ console.log("❌ Error:", error);
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
-      color: #c05621; /* naranja oscuro */
+      color: #c05621;
     }
 
     .product-card p {
       font-size: 1rem;
-      color: #4a5568; /* gris */
+      color: #4a5568;
       margin-bottom: 1rem;
     }
 
@@ -95,4 +129,5 @@ console.log("❌ Error:", error);
       }
     }
   </style>
+
 </Layout>
