@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Inicia sesión para continuar">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-yellow-50 to-orange-100 p-6">
+
+    <div class="bg-white/90 backdrop-blur-lg p-10 rounded-3xl shadow-xl border border-orange-200 max-w-md text-center">
+      
+      <h1 class="text-3xl font-bold text-orange-600 mb-4">
+        🔐 Necesitas iniciar sesión
+      </h1>
+
+      <p class="text-gray-700 mb-6">
+        Para completar tu pedido, por favor inicia sesión o crea una cuenta.
+      </p>
+
+      <div class="flex flex-col gap-4">
+
+        <a href="/login"
+           class="bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 transition">
+          Iniciar sesión
+        </a>
+
+        <a href="/auth/register"
+           class="bg-white text-orange-600 border border-orange-500 py-3 rounded-xl font-semibold hover:bg-orange-100 transition">
+          Registrarme
+        </a>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>
