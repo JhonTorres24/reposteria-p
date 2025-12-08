@@ -161,3 +161,23 @@ img[alt="Logo Repostería D'Rossy"] {
     height: 160px;
   }
 }
+/* Contenedor de cada imagen */
+.slider-card {
+  flex: 0 0 auto; /* Mantiene la imagen fija y evita que se estire */
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Hover: zoom y glow naranja */
+.slider-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 20px 40px rgba(255, 140, 0, 0.5);
+  z-index: 10; /* Para que destaque sobre las demás */
+}
+
+/* Opcional: borde suave */
+.slider-card img {
+  border-radius: 1rem;
+  transition: transform 0.4s ease;
+}
