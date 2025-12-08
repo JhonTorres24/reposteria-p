@@ -1,83 +1,91 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { supabase } from "../lib/supabase.js";
+import { createClient } from '@supabase/supabase-js';
 
-// 🔐 Obtener sesión del usuario
-const {
-  data: { session },
-} = await supabase.auth.getSession();
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Obtener sesión
+const { data: { session } } = await supabase.auth.getSession();
 
 if (!session) {
-  // Si no está logueado → redirigir al login
-  throw Astro.redirect("/auth/login");
+  return Astro.redirect('/login');
 }
 
-const user_id = session.user.id;
+// Obtener pedidos del usuario
+const { data: pedidos, error } = await supabase
+  .from('pedidos')
+  .select('*')
+  .eq('user_id', session.user.id)
+  .order('created_at', { ascending: false });
 
-// 🟦 Obtener pedidos del usuario
-const { data: orders, error } = await supabase
-  .from("orders")
-  .select(`
-    id,
-    total,
-    created_at,
-    order_items (
-      id,
-      quantity,
-      price,
-      productos (
-        nombre,
-        imagen
-      )
-    )
-  `)
-  .eq("user_id", user_id)
-  .order("created_at", { ascending: false });
-
+if (error) {
+  console.error('Error al cargar pedidos:', error);
+}
 ---
-<BaseLayout title="Mis pedidos">
-  <h1 class="text-3xl font-bold mb-6">Mis pedidos</h1>
 
-  {error && (
-    <p class="text-red-600">Error cargando pedidos: {error.message}</p>
-  )}
+<BaseLayout title="Mis Pedidos - Repostería D'Rossy">
+  <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-100 p-6">
+    <h1 class="text-4xl font-bold text-center mb-8 text-orange-600">📦 Mis Pedidos</h1>
 
-  {orders?.length === 0 && (
-    <p class="text-gray-600">Todavía no tienes pedidos.</p>
-  )}
-
-  <div class="space-y-6">
-    {orders?.map(order => (
-      <div class="p-6 rounded-xl bg-white shadow">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold">Pedido #{order.id}</h2>
-          <span class="text-gray-500 text-sm">
-            {new Date(order.created_at).toLocaleDateString("es-PE")}
-          </span>
-        </div>
-
-        <div class="mt-4 space-y-3">
-          {order.order_items.map(item => (
-            <div class="flex items-center gap-3">
-              <img
-                src={item.productos?.imagen}
-                alt={item.productos?.nombre}
-                class="w-14 h-14 object-cover rounded-lg"
-              />
+    {!pedidos || pedidos.length === 0 ? (
+      <div class="text-center py-10">
+        <p class="text-gray-600">No tienes pedidos aún.</p>
+        <a href="/catalogo" class="text-orange-500 hover:underline mt-2 inline-block">
+          ¡Ve al catálogo para hacer tu primer pedido!
+        </a>
+      </div>
+    ) : (
+      <div class="max-w-4xl mx-auto space-y-6">
+        {pedidos.map(pedido => (
+          <div class="bg-white rounded-xl shadow-md p-6 border border-orange-200">
+            <div class="flex justify-between items-start mb-4">
               <div>
-                <p class="font-semibold">{item.productos?.nombre}</p>
-                <p class="text-sm text-gray-600">
-                  {item.quantity} × S/ {item.price.toFixed(2)}
+                <h3 class="font-bold text-lg">Pedido #{pedido.id.slice(0, 8)}</h3>
+                <p class="text-gray-500 text-sm">
+                  {new Date(pedido.created_at).toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </p>
               </div>
+              <span class={`
+                px-3 py-1 rounded-full text-sm font-semibold
+                ${pedido.estado === 'completado' ? 'bg-green-100 text-green-800' : 
+                  pedido.estado === 'cancelado' ? 'bg-red-100 text-red-800' : 
+                  'bg-yellow-100 text-yellow-800'}
+              `}>
+                {pedido.estado}
+              </span>
             </div>
-          ))}
-        </div>
 
-        <p class="mt-4 text-right font-bold text-lg">
-          Total: S/ {order.total.toFixed(2)}
-        </p>
+            <div class="border-t pt-4">
+              <h4 class="font-semibold mb-2">Productos:</h4>
+              {Array.isArray(pedido.productos) ? (
+                <ul class="space-y-2">
+                  {pedido.productos.map((producto, idx) => (
+                    <li class="flex justify-between">
+                      <span>{producto.nombre} x {producto.cantidad}</span>
+                      <span>${(producto.precio * producto.cantidad).toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="text-gray-500">Información de productos no disponible</p>
+              )}
+            </div>
+
+            <div class="border-t pt-4 mt-4 flex justify-between items-center">
+              <span class="font-bold">Total:</span>
+              <span class="text-xl font-bold text-orange-600">${pedido.total.toFixed(2)}</span>
+            </div>
+          </div>
+        ))}
       </div>
-    ))}
+    )}
   </div>
 </BaseLayout>
