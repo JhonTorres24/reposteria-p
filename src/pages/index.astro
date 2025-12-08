@@ -1,95 +1,352 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Inicio - Repostería D'Rossy">
-  <link rel="stylesheet" href="/src/styles/index.css" />
+  <!-- Animaciones AOS-like personalizadas -->
+  <style>
+    /* ——— Animación Scroll ——— */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 1s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-  <!-- Sección Hero -->
-  <section class="bg-gradient-to-r from-yellow-100 to-orange-200 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 shadow-xl">
-    <div class="flex-1 text-center md:text-left">
-      <!-- Logo -->
-      <div class="flex justify-center md:justify-start mb-6">
-        <img
-          src="/img/image.png"
-          alt="Logo Repostería D'Rossy"
-          class="w-32 h-32 rounded-full shadow-xl hover:scale-105 transition-transform duration-500"
-        />
-      </div>
+    /* ——— Brillo en tarjetas ——— */
+    .shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .shine::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+      );
+      transform: skewX(-20deg);
+      transition: 0.8s;
+    }
+    .shine:hover::before {
+      left: 150%;
+    }
 
-      <!-- Texto principal -->
-      <h1 class="text-4xl md:text-5xl font-extrabold text-orange-600 tracking-wide mb-4">Pastelería artesanal para tus momentos especiales</h1>
-      <p class="text-lg md:text-xl text-gray-700 mb-6">Pasteles, cupcakes y postres hechos con ingredientes frescos y muchísimo cariño.</p>
-      
-      <div class="mt-6 flex gap-4 justify-center md:justify-start">
-        <a href="/catalogo" class="px-6 py-3 bg-orange-600 text-white rounded-lg shadow-md hover:bg-orange-700 transition-colors">
-          Ver catálogo
-        </a>
-        <a href="/nosotros" class="px-6 py-3 border-2 border-orange-600 text-orange-600 rounded-lg shadow-md hover:bg-orange-100 transition-colors">
-          Conócenos
-        </a>
-      </div>
+    /* ——— Logo brillo cíclico ——— */
+    @keyframes glow {
+      0% {
+        filter: drop-shadow(0 0 4px #ff914d);
+      }
+      50% {
+        filter: drop-shadow(0 0 15px #ffb26f);
+      }
+      100% {
+        filter: drop-shadow(0 0 4px #ff914d);
+      }
+    }
+    .logo-glow {
+      animation: glow 2.5s infinite ease-in-out;
+    }
+
+    /* ——— Fondo cristal para testimonios ——— */
+    .glass {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    /* ——— Temas ——— */
+    body.valentin {
+      background: linear-gradient(to bottom, #ffe0eb, #ffd1e3);
+    }
+    body.primavera {
+      background: linear-gradient(to bottom, #d4ffe7, #beffd9);
+    }
+    body.navidad {
+      background: linear-gradient(to bottom, #d4f1ff, #b6e5ff);
+    }
+  </style>
+
+  <!-- Header flotante -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/40 dark:bg-black/40 shadow-lg border-b border-white/50 dark:border-white/10"
+  >
+    <div
+      class="max-w-6xl mx-auto flex justify-between items-center py-4 px-6 text-orange-700 font-bold"
+    >
+      <a href="/" class="text-3xl logo-glow">🎂 D'Rossy</a>
+
+      <nav class="hidden md:flex gap-6 font-semibold">
+        <a href="/" class="hover:text-orange-500">Inicio</a>
+        <a href="/catalogo" class="hover:text-orange-500">Catálogo</a>
+        <a href="/nosotros" class="hover:text-orange-500">Nosotros</a>
+        <a href="/login" class="hover:text-orange-500">Login</a>
+        <a href="/carrito" class="hover:text-orange-500 text-2xl">🛒</a>
+      </nav>
+
+      <!-- Selector de tema -->
+      <select
+        id="modeSelect"
+        class="bg-white/50 border px-2 py-1 rounded dark:bg-black/50"
+        title="Cambiar tema"
+      >
+        <option value="normal">Normal</option>
+        <option value="navidad">Navidad</option>
+        <option value="valentin">San Valentín</option>
+        <option value="primavera">Primavera</option>
+      </select>
     </div>
+  </header>
 
-    <!-- Imagen principal -->
-    <div class="w-full md:w-96">
-      <img src="/img/LocalRossy.png" alt="Local de la pastelería" class="rounded-xl shadow-xl object-cover w-full h-64 md:h-80"/>
+  <!-- Canvas nieve -->
+  <canvas
+    id="snowCanvas"
+    class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 hidden"
+  ></canvas>
+
+  <!-- POPUP PROMOCIÓN -->
+  <div
+    id="promoPopup"
+    class="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50 hidden"
+  >
+    <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm">
+      <h3 class="text-2xl font-bold text-orange-600 mb-3">
+        🎉 ¡Promoción Especial!
+      </h3>
+      <p class="text-gray-700">Aprovecha 10% OFF en tu primer pedido 💛</p>
+      <button
+        id="closePromo"
+        class="mt-6 px-6 py-3 bg-orange-600 text-white rounded-xl shadow hover:bg-orange-700"
+      >
+        ¡Genial!
+      </button>
     </div>
-  </section>
-
-  <!-- Productos Destacados -->
-  <section class="mt-16">
-    <h2 class="text-3xl font-bold text-center text-orange-600 mb-8">Productos destacados</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Producto 1 -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
-        <img src="/img/bob-esponja.png" alt="Pastel de tres leches" class="w-full h-48 object-cover"/>
-        <div class="p-4">
-          <h3 class="text-xl font-semibold text-gray-800">Pastel de tres leches</h3>
-          <p class="text-sm text-gray-500">Rico pastel de tres leches con ganache.</p>
-          <div class="flex justify-between mt-4">
-            <div class="text-lg font-bold text-orange-600">$55.00</div>
-            <a href="/catalogo" class="text-orange-600 font-bold hover:text-orange-700 transition-colors">Ver más</a>
-          </div>
-        </div>
-      </article>
-
-      <!-- Producto 2 -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
-        <img src="/img/PasttelPVZ.png" alt="Selva Negra" class="w-full h-48 object-cover"/>
-        <div class="p-4">
-          <h3 class="text-xl font-semibold text-gray-800">Selva Negra</h3>
-          <p class="text-sm text-gray-500">Personalizado de PVZ.</p>
-          <div class="flex justify-between mt-4">
-            <div class="text-lg font-bold text-orange-600">$58.00</div>
-            <a href="/catalogo" class="text-orange-600 font-bold hover:text-orange-700 transition-colors">Ver más</a>
-          </div>
-        </div>
-      </article>
-
-      <!-- Producto 3 -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
-        <img src="/img/corona.png" alt="Torta de frutas" class="w-full h-48 object-cover"/>
-        <div class="p-4">
-          <h3 class="text-xl font-semibold text-gray-800">Torta de frutas</h3>
-          <p class="text-sm text-gray-500">Fresca y ligera.</p>
-          <div class="flex justify-between mt-4">
-            <div class="text-lg font-bold text-orange-600">$48.00</div>
-            <a href="/catalogo" class="text-orange-600 font-bold hover:text-orange-700 transition-colors">Ver más</a>
-          </div>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- Botón de login -->
-  <div class="mt-16 text-center">
-    <a href="/login" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors">
-      Iniciar sesión
-    </a>
   </div>
 
-  <script type="module">
-    import CartClient from '../components/CartClient.jsx';
+  <!-- HERO -->
+  <section
+    class="pt-32 fade-up max-w-6xl mx-auto px-6 mt-10 bg-gradient-to-r from-yellow-100/70 to-orange-200/70 dark:from-gray-700/40 dark:to-gray-900/40 rounded-2xl shadow-2xl backdrop-blur-xl p-10 border border-white/30 dark:border-white/10"
+  >
+    <div class="flex flex-col md:flex-row items-center gap-10">
+      <div class="flex-1">
+        <img
+          src="/img/image.png"
+          class="w-40 h-40 rounded-full shadow-2xl ring-4 ring-white/70 mx-auto md:mx-0 logo-glow"
+        />
+
+        <h1
+          class="text-5xl md:text-6xl font-extrabold text-orange-700 mt-6 leading-tight dark:text-orange-300"
+        >
+          Pastelería artesanal hecha con amor
+        </h1>
+        <p class="text-xl mt-4 text-gray-700 dark:text-gray-300">
+          Sabores únicos, frescos y preparados con dedicación.
+        </p>
+
+        <div class="mt-8 flex gap-4">
+          <a
+            href="/catalogo"
+            class="px-6 py-3 bg-orange-600 text-white rounded-xl shadow-xl hover:bg-orange-700"
+          >
+            Ver catálogo
+          </a>
+          <a
+            href="/nosotros"
+            class="px-6 py-3 border-2 border-orange-600 text-orange-700 rounded-xl shadow-xl hover:bg-orange-100 dark:text-orange-300 dark:border-orange-300"
+          >
+            Conócenos
+          </a>
+        </div>
+      </div>
+
+      <img
+        src="/img/LocalRossy.png"
+        class="rounded-xl shadow-2xl w-full md:w-96 object-cover shine"
+      />
+    </div>
+  </section>
+
+<!-- SLIDER PRINCIPAL -->
+<section class="max-w-6xl mx-auto mt-20 px-6">
+  <h2 class="text-4xl font-bold text-center text-orange-600 mb-8">
+    🎠 Productos Populares
+  </h2>
+  <div class="flex justify-center gap-6">
+    <img src="/img/bob esponja.png" alt="Producto bob esponja" class="w-64 h-80 object-cover rounded-xl" />
+    <img src="/img/PasttelPVZ.png" alt="Producto Pasttel PVZ" class="w-64 h-80 object-cover rounded-xl" />
+    <img src="/img/corona.png" alt="Producto corona" class="w-64 h-80 object-cover rounded-xl" />
+  </div>
+</section>
+
+<!-- SLIDER DE NUEVOS PRODUCTOS -->
+<section class="max-w-6xl mx-auto mt-20 px-6">
+  <h2 class="text-4xl font-bold text-center text-orange-600 mb-8">
+    🆕 Nuevos productos
+  </h2>
+  <div class="flex justify-center gap-6">
+    <img src="/img/cachito.png" alt="Producto cachito" class="w-64 h-72 object-cover rounded-xl" />
+    <img src="/img/galletaAjonjoli.png" alt="Producto galleta ajonjolí" class="w-64 h-72 object-cover rounded-xl" />
+    <img src="/img/keke.png" alt="Producto keke" class="w-64 h-72 object-cover rounded-xl" />
+  </div>
+</section>
+
+  <!-- TESTIMONIOS CRISTAL -->
+  <section class="max-w-6xl mx-auto mt-20 fade-up px-6">
+    <h2 class="text-4xl font-bold text-center text-orange-600 mb-12 dark:text-orange-300">
+      ⭐ Opiniones de nuestros clientes
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div class="glass p-6 rounded-2xl shadow-xl text-center">
+        <p class="text-lg italic text-gray-800 dark:text-black">
+          “Los mejores pasteles que he probado.”
+        </p>
+        <h4 class="mt-4 font-bold text-orange-600 dark:text-orange-300">
+          — Ana López
+        </h4>
+      </div>
+
+      <div class="glass p-6 rounded-2xl shadow-xl text-center">
+        <p class="text-lg italic text-gray-800 dark:text-black">
+          “Atención excelente y productos deliciosos.”
+        </p>
+        <h4 class="mt-4 font-bold text-orange-600 dark:text-orange-300">
+          — Carlos Rivera
+        </h4>
+      </div>
+
+      <div class="glass p-6 rounded-2xl shadow-xl text-center">
+        <p class="text-lg italic text-gray-800 dark:text-black">
+          “Mis fiestas nunca son iguales sin sus pasteles.”
+        </p>
+        <h4 class="mt-4 font-bold text-orange-600 dark:text-orange-300">
+          — María Torres
+        </h4>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer
+    class="mt-32 bg-orange-600 text-white py-10 text-center shadow-inner fade-up dark:bg-orange-800"
+  >
+    <h3 class="text-2xl font-bold">Repostería D'Rossy</h3>
+    <p class="text-sm mt-2">Delicias que alegran tus días.</p>
+
+    <div class="flex gap-6 justify-center mt-5 text-3xl">
+      <a>📘</a>
+      <a>📸</a>
+      <a>💬</a>
+    </div>
+
+    <p class="text-sm mt-6 opacity-80">
+      © 2025 Todos los derechos reservados"Rossy".
+    </p>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    /* ————— ANIMACIÓN AL SCROLL ————— */
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.2 }
+    );
+    document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+
+    /* ————— SLIDER PRINCIPAL ————— */
+    let index = 0;
+    setInterval(() => {
+      index = (index + 1) % 3;
+      document.getElementById("slider").style.transform =
+        "translateX(" + -index * 100 + "%)";
+    }, 3500);
+
+    /* ————— SLIDER NUEVOS ————— */
+    let index2 = 0;
+    setInterval(() => {
+      index2 = (index2 + 1) % 3;
+      document.getElementById("sliderNuevos").style.transform =
+        "translateX(" + -index2 * 100 + "%)";
+    }, 3200);
+
+    /* ————— POPUP PROMOCIÓN ————— */
+    const promo = document.getElementById("promoPopup");
+    const closePromo = document.getElementById("closePromo");
+
+    window.onload = () => {
+      promo.classList.remove("hidden");
+    };
+
+    closePromo.onclick = () => {
+      promo.classList.add("hidden");
+    };
+
+    /* ————— SISTEMA DE TEMAS ————— */
+    const modeSelect = document.getElementById("modeSelect");
+    const snowCanvas = document.getElementById("snowCanvas");
+
+    function activarTema(theme) {
+      document.body.className = theme;
+
+      if (theme === "navidad") {
+        snowCanvas.classList.remove("hidden");
+        iniciarNieve();
+      } else {
+        snowCanvas.classList.add("hidden");
+      }
+    }
+
+    modeSelect.addEventListener("change", () =>
+      activarTema(modeSelect.value)
+    );
+
+    /* ————— MODO OSCURO AUTOMÁTICO ————— */
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark");
+    }
+
+    /* ————— NIEVE ————— */
+    let flakes = [];
+
+    function iniciarNieve() {
+      const ctx = snowCanvas.getContext("2d");
+      snowCanvas.width = innerWidth;
+      snowCanvas.height = innerHeight;
+
+      flakes = Array.from({ length: 150 }).map(() => ({
+        x: Math.random() * innerWidth,
+        y: Math.random() * -innerHeight,
+        s: Math.random() * 4 + 1,
+        v: Math.random() * 1 + 0.5,
+      }));
+
+      function update() {
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        flakes.forEach((f) => {
+          f.y += f.v;
+          if (f.y > innerHeight) f.y = -10;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.s, 0, Math.PI * 2);
+          ctx.fillStyle = "white";
+          ctx.fill();
+        });
+        requestAnimationFrame(update);
+      }
+
+      update();
+    }
   </script>
 </BaseLayout>
