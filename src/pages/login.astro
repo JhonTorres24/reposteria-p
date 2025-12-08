@@ -1,66 +1,110 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { createClient } from '@supabase/supabase-js';
+
+// Configura Supabase en el servidor (si necesitas usarlo aquí)
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 ---
 
 <BaseLayout title="Login - Repostería D'Rossy">
-  <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-100 p-6">
+  <div class="min-h-screen bg-gradient-to-b from-yellow-50 to-orange-100 p-6 flex flex-col items-center justify-center">
 
     <h1 class="text-5xl font-extrabold text-center mb-8 text-orange-600 drop-shadow-lg tracking-wide">
-      🛒 Iniciar sesión
+      🔐 Iniciar sesión
     </h1>
 
-    <div class="max-w-sm mx-auto">
+    <div class="max-w-md w-full bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-8 border border-orange-200">
       <!-- Formulario de login -->
-      <form id="login-form" class="space-y-4">
+      <form id="login-form" class="space-y-6">
         <div>
+          <label for="email" class="block text-gray-700 mb-2 font-medium">
+            Correo electrónico
+          </label>
           <input
             type="email"
             id="email"
-            class="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder="Correo electrónico"
-            value="erick123@gmail.com"  <!-- Pre-cargar el email de prueba -->
-            USUARIO
+            class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+            placeholder="ejemplo@correo.com"
+            value=" "  <!-- Pre-cargar el email de prueba -->
         </div>
+        
         <div>
+          <label for="password" class="block text-gray-700 mb-2 font-medium">
+            Contraseña
+          </label>
           <input
             type="password"
             id="password"
-            class="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder="Contraseña"
-            value="ga123456"  <!-- Pre-cargar la contraseña de prueba -->
-            CONTRASEÑA
+            class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+            placeholder="Tu contraseña"
+            value=""  <!-- Pre-cargar la contraseña de prueba -->
         </div>
+        
         <div>
-          <button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700">
-            Iniciar sesión
+          <button 
+            type="submit" 
+            id="login-btn"
+            class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span id="btn-text">Iniciar sesión</span>
+            <span id="btn-loading" class="hidden">⌛ Procesando...</span>
           </button>
         </div>
+        
+        <div class="text-center pt-4 border-t border-gray-200">
+          <p class="text-gray-600">
+            ¿No tienes cuenta? 
+            <a href="/registro" class="text-orange-600 hover:text-orange-700 font-semibold ml-1">
+              Regístrate aquí
+            </a>
+          </p>
+        </div>
       </form>
-      <p id="error-message" class="text-red-500 text-center mt-3 hidden"></p>
+      
+      <p id="error-message" class="text-red-500 text-center mt-4 p-3 bg-red-50 rounded-lg hidden"></p>
+      <p id="success-message" class="text-green-500 text-center mt-4 p-3 bg-green-50 rounded-lg hidden"></p>
     </div>
   </div>
 
-  <!-- SCRIPT -->
+  <!-- SCRIPT CLIENTE -->
   <script is:inline>
-    import { createClient } from '@supabase/supabase-js';
-
     // Configura Supabase en el cliente
     const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
     const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const form = document.getElementById('login-form');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const loginBtn = document.getElementById('login-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoading = document.getElementById('btn-loading');
+
+    // Obtener parámetro de redirección de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTo = urlParams.get('redirect') || '/carrito';
 
     // Manejador de evento para el formulario
     form.onsubmit = async (e) => {
       e.preventDefault();
+      
+      // Resetear mensajes
+      errorMessage.classList.add('hidden');
+      successMessage.classList.add('hidden');
+      
+      // Mostrar estado de carga
+      loginBtn.disabled = true;
+      btnText.classList.add('hidden');
+      btnLoading.classList.remove('hidden');
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
-      console.log("Email:", email);  // Verifica los valores
-      console.log("Password:", password);
+      console.log("🔐 Intentando login:", { email, password });
 
       try {
         // Intentar iniciar sesión con Supabase
@@ -69,24 +113,68 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           password,
         });
 
-        // Verifica si hay un error
         if (error) {
-          console.error("Error en el login:", error);  // Agregar consola para depuración
-          errorMessage.textContent = 'Error: ' + error.message;
+          console.error("❌ Error en el login:", error);
+          
+          // Mensajes de error específicos
+          let errorMsg = error.message;
+          if (error.message.includes('Invalid login credentials')) {
+            errorMsg = 'Correo o contraseña incorrectos';
+          } else if (error.message.includes('Email not confirmed')) {
+            errorMsg = 'Por favor, confirma tu correo electrónico';
+          }
+          
+          errorMessage.textContent = errorMsg;
           errorMessage.classList.remove('hidden');
-        } else {
-          console.log("Login exitoso, usuario:", data.user);  // Verifica la información del usuario
-          // Si el login es exitoso, guardar el usuario en localStorage
-          localStorage.setItem('user', JSON.stringify(data.user));
-
-          // Redirigir al carrito
-          window.location.href = '/carrito'; // Redirige al carrito si el login es exitoso
+          
+          // Restaurar botón
+          loginBtn.disabled = false;
+          btnText.classList.remove('hidden');
+          btnLoading.classList.add('hidden');
+          
+          return;
         }
+
+        console.log("✅ Login exitoso, usuario:", data.user);
+        
+        // Mostrar mensaje de éxito
+        successMessage.textContent = `¡Bienvenido ${data.user.email}! Redirigiendo...`;
+        successMessage.classList.remove('hidden');
+        
+        // Guardar información básica del usuario en localStorage (opcional)
+        const userData = {
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.user_metadata?.name || data.user.email.split('@')[0]
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // También guardar el token de acceso en localStorage para usarlo en fetch
+        localStorage.setItem('supabase_token', data.session.access_token);
+        
+        // Redirigir después de un breve delay
+        setTimeout(() => {
+          window.location.href = redirectTo;
+        }, 1500);
+
       } catch (err) {
-        console.error("Error al intentar iniciar sesión:", err);
-        errorMessage.textContent = 'Hubo un error al intentar iniciar sesión';
+        console.error("🔥 Error al intentar iniciar sesión:", err);
+        errorMessage.textContent = 'Error inesperado. Intenta nuevamente.';
         errorMessage.classList.remove('hidden');
+        
+        // Restaurar botón
+        loginBtn.disabled = false;
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
       }
     };
+
+    // Opcional: Verificar si ya está logueado
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        console.log("👤 Ya hay sesión activa, redirigiendo...");
+        window.location.href = redirectTo;
+      }
+    });
   </script>
 </BaseLayout>
